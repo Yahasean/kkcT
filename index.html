@@ -18,7 +18,7 @@
             const posterUrl = url.searchParams.get('poster');
             const skyboxUrl = url.searchParams.get('skybox');
             const voxelUrl = './model.voxel.json';
-            const settingsUrl = './settings.json';
+            const settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : './settings.json';
             const contentUrl = './index.sog';
 
             const sseConfig = {
@@ -108,7 +108,7 @@
                                 <g class='fill'><use href="#flyIcon"/></g>
                             </svg>
                         </button>
-                        <button id="fpsCamera" class="controlButton toggle right">
+                        <button id="fpsCamera" class="controlButton toggle right hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                                 <g class='stroke'><use href="#walkIcon"/></g>
                                 <g class='fill'><use href="#walkIcon"/></g>
@@ -472,44 +472,60 @@
             document.addEventListener('DOMContentLoaded', async () => {
                 const canvas = document.getElementById('application-canvas');
                 const settingsJson = await settings;
-                                console.warn('>>> [PATCH] Walk Mode Recovery Active');
+                                console.warn('>>> [PATCH] Booting Systems...');
                 const viewer = await main(canvas, settingsJson, config);
                 
-                // 瘥?50ms 瑼Ｘ銝甈∴??游?豢??批撠梁?
-                const checkReady = setInterval(() => {
-                    if (viewer && viewer.cameraControls) {
-                        clearInterval(checkReady);
-                        console.error('>>> [PATCH] Camera Ready! Setting Walk Mode...');
+                // --- System A: Image Navigation (Anti-Crash Version) ---
+                const checkImg = setInterval(() => {
+                    const infoPanel = document.getElementById('annotationInfo');
+                    const titleEl = document.getElementById('annotationNavTitle');
+                    if (infoPanel && titleEl && viewer.annotations) {
+                        clearInterval(checkImg);
+                        console.error('>>> [PATCH] Image System READY!');
                         
-                        // 撘瑕??璅∪?
-                        viewer.cameraControls.mode = 'walk';
-                        
-                        const updateH = (h) => {
-                            if(viewer.cameraControls.walk) {
-                                viewer.cameraControls.walk.eyeHeight = h;
-                                console.log('>>> [HEIGHT] Set to:', h);
+                        let lastIdx = -1;
+                        const observer = new MutationObserver(() => {
+                            const idx = viewer.annotations.activeIndex;
+                            
+                            // Prevent NaN and redundant triggers
+                            if (typeof idx !== 'number' || isNaN(idx) || idx === -1 || idx === lastIdx) return;
+                            lastIdx = idx;
+
+                            const imgNum = (idx + 1).toString().padStart(2, '0');
+                            const imgPath = './AN' + imgNum + '.jpg';
+                            
+                            let box = infoPanel.querySelector('.custom-media');
+                            if (!box) {
+                                box = document.createElement('div');
+                                box.className = 'custom-media';
+                                box.style.cssText = 'margin-top:12px; border-top:1px solid #444; padding-top:10px;';
+                                infoPanel.appendChild(box);
                             }
-                        };
-
-                        // 閮剖???擃漲
-                        setTimeout(() => {
-                            const initH = (settingsJson.walk && settingsJson.walk.eyeHeight) ? Number(settingsJson.walk.eyeHeight) : 1.2;
-                            updateH(initH);
-                        }, 200);
-
-                        // 皜祈岫?
-                        window.addEventListener('keydown', (e) => {
-                            if (!viewer.cameraControls.walk) return;
-                            let curH = viewer.cameraControls.walk.eyeHeight;
-                            if (e.key === '9') updateH(curH + 0.5);
-                            if (e.key === '8') updateH(curH - 0.5);
+                            
+                            // Only update if path changed to prevent infinite loops
+                            if (box.dataset.currentImg !== imgPath) {
+                                box.dataset.currentImg = imgPath;
+                                box.innerHTML = '<img src="' + imgPath + '" style="width:100%; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5);" onerror="this.parentElement.style.display=\'none\'" onload="this.parentElement.style.display=\'block\'">';
+                            }
                         });
+                        // Monitor title text changes to avoid infinite UI loops
+                        observer.observe(titleEl, { characterData: true, childList: true, subtree: true });
+                    }
+                }, 100);
 
-                        // 靽格迤??鈭桃?
+                // --- System B: Walk Mode (Independent) ---
+                const checkWalk = setInterval(() => {
+                    if (viewer && viewer.cameraControls && viewer.cameraControls.walk) {
+                        clearInterval(checkWalk);
+                        console.error('>>> [PATCH] Walk Mode READY!');
+                        viewer.cameraControls.mode = 'walk';
+                        const h = (settingsJson.walk && settingsJson.walk.eyeHeight) ? Number(settingsJson.walk.eyeHeight) : 1.2;
+                        viewer.cameraControls.walk.eyeHeight = h;
+                        document.getElementById('fpsCamera')?.classList.remove('hidden');
                         document.getElementById('fpsCamera')?.classList.add('active');
                         document.getElementById('orbitCamera')?.classList.remove('active');
                     }
-                }, 50);
+                }, 100);
             });
         </script>
     </body>
