@@ -1,72 +1,75 @@
-﻿{
-    "version":  2,
-    "tonemapping":  "none",
-    "highPrecisionRendering":  false,
-    "background":  {
-                       "color":  [
-                                     0.4,
-                                     0.4,
-                                     0.4
-                                 ]
-                   },
-    "postEffectSettings":  {
-                               "sharpness":  {
-                                                 "enabled":  false,
-                                                 "amount":  0
-                                             },
-                               "bloom":  {
-                                             "enabled":  false,
-                                             "intensity":  1,
-                                             "blurLevel":  2
-                                         },
-                               "grading":  {
-                                               "enabled":  false,
-                                               "brightness":  0,
-                                               "contrast":  1,
-                                               "saturation":  1,
-                                               "tint":  [
-                                                            1,
-                                                            1,
-                                                            1
-                                                        ]
-                                           },
-                               "vignette":  {
-                                                "enabled":  false,
-                                                "intensity":  0.5,
-                                                "inner":  0.3,
-                                                "outer":  0.75,
-                                                "curvature":  1
-                                            },
-                               "fringing":  {
-                                                "enabled":  false,
-                                                "intensity":  0.5
-                                            }
-                           },
-    "animTracks":  [
-
-                   ],
-    "cameras":  [
-                    {
-                        "initial":  {
-                                        "position":  [
-                                                         2,
-                                                         2,
-                                                         -2
-                                                     ],
-                                        "target":  [
-                                                       0,
-                                                       0,
-                                                       0
-                                                   ],
-                                        "fov":  75
-                                    }
-                    }
-                ],
-    "annotations":  [
-
-                    ],
-    "startMode":  "default",
-    "walk":  {
-                 "eyeHeight":  1.2
-             }
+{
+  "version": 2,
+  "tonemapping": "linear",
+  "highPrecisionRendering": false,
+  "background": {
+    "color": [
+      0.4,
+      0.4,
+      0.4
+    ]
+  },
+  "postEffectSettings": {
+    "sharpness": { "enabled": false, "amount": 0 },
+    "bloom": { "enabled": false, "intensity": 0.1, "blurLevel": 2 },
+    "grading": { "enabled": false, "brightness": 1, "contrast": 1, "saturation": 1, "tint": [ 1, 1, 1 ] },
+    "vignette": { "enabled": false, "intensity": 0.5, "inner": 0.3, "outer": 0.75, "curvature": 1 },
+    "fringing": { "enabled": false, "intensity": 0.5 }
+  },
+  "animTracks": [],
+  "cameras": [
+    {
+      "initial": {
+        "position": [ 0.18762685358524323, 0.6799080967903137, -0.9237086176872253 ],
+        "target": [ -1.2618270289726938, -0.36703215567279385, 0.12938126278096246 ],
+        "fov": 65
+      }
+    }
+  ],
+  "annotations": [
+    {
+      "position": [ -0.3820229887576265, 0.018692253030309303, 0.4266276559640363 ],
+      "title": "地板",
+      "text": "123456",
+      "extras": {},
+      "camera": {
+        "initial": {
+          "position": [ -0.2738323509693146, 0.6611582040786743, -0.8379533290863037 ],
+          "target": [ -0.2922406975804146, 0.3804720655827204, 0.5035554577914423 ],
+          "fov": 65
+        }
+      }
+    },
+    {
+      "position": [ 0.2059584110563361, 0.450758976908959, -0.8886989062249938 ],
+      "title": "猴硐貓公所",
+      "text": "2222",
+      "extras": {},
+      "camera": {
+        "initial": {
+          "position": [ -0.04868931695818901, 0.43954861116409302, 0.020263083279132843 ],
+          "target": [ -0.03019526588158594, 0.24514037234027672, -0.8476746345678485 ],
+          "fov": 65
+        }
+      }
+    },
+    {
+      "position": [ -0.8230768693135108, 0.1655005027426617, -0.6627026081091891 ],
+      "title": "三隻小貓",
+      "text": "5555",
+      "extras": {},
+      "camera": {
+        "initial": {
+          "position": [ -0.04868931695818901, 0.43954861116409302, 0.020263083279132843 ],
+          "target": [ -0.6916454348962843, 0.12387630667126143, -0.7547812607459444 ],
+          "fov": 65
+        }
+      }
+    }
+  ],
+  "startMode": "default",
+  "hasStartPose": true,
+  "walk": {
+    "eyeHeight": 1.2
+  }
 }
