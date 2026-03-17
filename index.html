@@ -475,57 +475,98 @@
                                 console.warn('>>> [PATCH] Booting Systems...');
                 const viewer = await main(canvas, settingsJson, config);
                 
-                // --- System A: Image Navigation (Anti-Crash Version) ---
-                const checkImg = setInterval(() => {
-                    const infoPanel = document.getElementById('annotationInfo');
+                // --- A. 3D 蝛粹?璅惜憭?擃?(摰?鞎澆???) ---
+                setInterval(() => {
                     const titleEl = document.getElementById('annotationNavTitle');
-                    if (infoPanel && titleEl && viewer.annotations) {
-                        clearInterval(checkImg);
-                        console.error('>>> [PATCH] Image System READY!');
+                    const labelRoot = document.getElementById('annotations');
+
+                    if (titleEl && labelRoot && settingsJson && settingsJson.annotations) {
+                        const currentTitle = titleEl.innerText.trim();
+                        if (!currentTitle) return;
+
+                        const idx = settingsJson.annotations.findIndex(a => a.title === currentTitle);
+                        if (idx === -1) return;
+
+                        let targetLabel = null;
+                        for (let i = 0; i < labelRoot.children.length; i++) {
+                            const child = labelRoot.children[i];
+                            if (child.innerText && child.innerText.includes(currentTitle)) {
+                                targetLabel = child;
+                                break;
+                            }
+                        }
+
+                        if (!targetLabel) return;
+
+                        // ? ?湧??暺??嚗?摰?摰寡????
+                        targetLabel.style.display = 'flex';
+                        targetLabel.style.flexDirection = 'row';
+                        targetLabel.style.alignItems = 'center';
+                        targetLabel.style.width = 'max-content'; // ?嚗???祝摨?
+                        targetLabel.style.maxWidth = 'none';     // ?嚗圾?文???憭批祝摨阡???
+                        targetLabel.style.height = 'auto';
+                        targetLabel.style.padding = '10px 15px'; // 敺株矽?折?頝??恍?游末??
+                        targetLabel.style.whiteSpace = 'normal';
+
+                        let mediaBox = targetLabel.querySelector('.custom-media');
+                        if (!mediaBox) {
+                            mediaBox = document.createElement('div');
+                            mediaBox.className = 'custom-media';
+                            mediaBox.style.cssText = 'width: 260px; flex-shrink: 0; display: flex; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px; margin-left: 15px;';
+                            targetLabel.appendChild(mediaBox);
+                        }
+
+                        const pathBase = './AN' + (idx + 1).toString().padStart(2, '0');
                         
-                        let lastIdx = -1;
-                        const observer = new MutationObserver(() => {
-                            const idx = viewer.annotations.activeIndex;
-                            
-                            // Prevent NaN and redundant triggers
-                            if (typeof idx !== 'number' || isNaN(idx) || idx === -1 || idx === lastIdx) return;
-                            lastIdx = idx;
+                        if (mediaBox.dataset.loadedPath !== pathBase) {
+                            mediaBox.dataset.loadedPath = pathBase;
+                            const vid = '<video src="' + pathBase + '.mp4" autoplay loop playsinline controls style="width:100%; height:auto; display:block; border-radius:6px;"></video>';
+                            const img = '<img src="' + pathBase + '.jpg" style="width:100%; height:auto; display:block; border-radius:6px;">';
 
-                            const imgNum = (idx + 1).toString().padStart(2, '0');
-                            const imgPath = './AN' + imgNum + '.jpg';
-                            
-                            let box = infoPanel.querySelector('.custom-media');
-                            if (!box) {
-                                box = document.createElement('div');
-                                box.className = 'custom-media';
-                                box.style.cssText = 'margin-top:12px; border-top:1px solid #444; padding-top:10px;';
-                                infoPanel.appendChild(box);
-                            }
-                            
-                            // Only update if path changed to prevent infinite loops
-                            if (box.dataset.currentImg !== imgPath) {
-                                box.dataset.currentImg = imgPath;
-                                box.innerHTML = '<img src="' + imgPath + '" style="width:100%; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5);" onerror="this.parentElement.style.display=\'none\'" onload="this.parentElement.style.display=\'block\'">';
-                            }
-                        });
-                        // Monitor title text changes to avoid infinite UI loops
-                        observer.observe(titleEl, { characterData: true, childList: true, subtree: true });
+                            fetch(pathBase + '.mp4', { method: 'HEAD' }).then(r => {
+                                mediaBox.innerHTML = r.ok ? vid : img;
+                            }).catch(() => { mediaBox.innerHTML = img; });
+                        }
                     }
-                }, 100);
+                }, 300);
 
-                // --- System B: Walk Mode (Independent) ---
+                // --- B. 甇亥?璅∪?閫?? ---
                 const checkWalk = setInterval(() => {
-                    if (viewer && viewer.cameraControls && viewer.cameraControls.walk) {
-                        clearInterval(checkWalk);
-                        console.error('>>> [PATCH] Walk Mode READY!');
-                        viewer.cameraControls.mode = 'walk';
-                        const h = (settingsJson.walk && settingsJson.walk.eyeHeight) ? Number(settingsJson.walk.eyeHeight) : 1.2;
-                        viewer.cameraControls.walk.eyeHeight = h;
-                        document.getElementById('fpsCamera')?.classList.remove('hidden');
-                        document.getElementById('fpsCamera')?.classList.add('active');
-                        document.getElementById('orbitCamera')?.classList.remove('active');
+                    if (viewer && viewer.cameraControls) {
+                        const fpsBtn = document.getElementById('fpsCamera');
+                        if (fpsBtn) fpsBtn.classList.remove('hidden');
+
+                        if (viewer.cameraControls.walk) {
+                            viewer.cameraControls.walk.eyeHeight = (settingsJson.walk && settingsJson.walk.eyeHeight) ? Number(settingsJson.walk.eyeHeight) : 1.2;
+                            clearInterval(checkWalk);
+                        }
                     }
-                }, 100);
+                }, 500);
+
+                // --- C. ??單? (BGM) 鋆? ---
+                const initBGM = () => {
+                    if (!window.bgmAudio) {
+                        window.bgmAudio = new Audio('./bgm.mp3');
+                        window.bgmAudio.loop = true;
+                        window.bgmAudio.volume = 0.2; // ?身?喲? 20%
+                        
+                        window.bgmAudio.play().then(() => {
+                            console.error('>>> [PATCH] BGM Playing!');
+                            // ???剜敺??????券??銴銵?
+                            window.removeEventListener('click', initBGM);
+                            window.removeEventListener('keydown', initBGM);
+                            window.removeEventListener('touchstart', initBGM);
+                        }).catch(e => {
+                            // ?亥◤?汗?冽?銝?蝑?甈⊿???閰?
+                            console.warn('>>> [PATCH] Waiting for interaction to play BGM...');
+                        });
+                    }
+                };
+                
+                // 蝬??典?鈭?鈭辣
+                window.addEventListener('click', initBGM);
+                window.addEventListener('keydown', initBGM);
+                window.addEventListener('touchstart', initBGM);
             });
         </script>
     </body>
